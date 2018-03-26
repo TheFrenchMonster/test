@@ -72,6 +72,14 @@ void player_dec_nb_bomb(struct player* player) {
 	player->nb_bombs -= 1;
 }
 
+void player_set_bomb(struct player* player, struct map* map){
+	assert(player);
+	if (player_get_nb_bomb(player) >= 1){
+		map_set_cell_type(map,player_get_x(player),player_get_y(player),CELL_BOMB);
+		player_dec_nb_bomb(player);
+	}
+}
+
 static int player_move_aux(struct player* player, struct map* map, int x, int y) {
 
 	if (!map_is_inside(map, x, y))
@@ -133,7 +141,7 @@ int player_move(struct player* player, struct map* map) {
 
 	case SOUTH:
 		if (player_move_aux(player, map, x, y + 1)) {
-			if(y+1<=11) {
+			if(y+1<=map_get_height(map)-1 ){
 				if(map_get_cell_type(map, x, y+1) == CELL_BOX) {
 					if(map_get_cell_type(map, x, y+2) == CELL_EMPTY){
 						if(y+2<=11){
@@ -175,10 +183,10 @@ int player_move(struct player* player, struct map* map) {
 
 	case EAST:
 		if (player_move_aux(player, map, x + 1, y)) {
-			if(x+1<=11) {
+			if(x+1<=map_get_width(map)-1) {
 				if(map_get_cell_type(map, x+1, y) == CELL_BOX) {
 					if(map_get_cell_type(map, x+2, y) == CELL_EMPTY){
-						if(x+2<=11){
+						if(x+2<=map_get_width(map)){
 							map_set_cell_type(map, x+1, y, CELL_EMPTY);
 							map_set_cell_type(map, x+2, y, CELL_BOX);
 							player->x++;

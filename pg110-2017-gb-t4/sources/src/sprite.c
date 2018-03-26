@@ -67,6 +67,7 @@ SDL_Surface* door_opened;
 SDL_Surface* door_closed;
 SDL_Surface* stone;
 SDL_Surface* tree;
+SDL_Surface* bomb;
 
 // bonus
 #define NB_BONUS 4
@@ -116,6 +117,7 @@ static void map_load() {
 	stone = load_image(MAP_STONE);
 	door_opened = load_image(MAP_DOOR_OPENED);
 	door_closed = load_image(MAP_DOOR_CLOSED);
+	bomb = load_image(BOMB_TTL1);
 }
 
 static void map_unload() {
@@ -178,7 +180,11 @@ SDL_Surface* sprite_get_player(enum direction direction) {
 	return player_img[direction];
 }
 
-SDL_Surface* sprite_get_banner_life() {
+SDL_Surface* sprite_get_bomb(){
+	assert(bomb);
+	return bomb;
+}
+ SDL_Surface* sprite_get_banner_life() {
 	assert(banner_life);
 	return banner_life;
 }

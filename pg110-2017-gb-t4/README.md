@@ -181,7 +181,7 @@ porte. Une fois qu'une porte est ouverte, elle le reste pour toute la partie du 
 Le panneau d’information doit afficher le nombre de vies, le nombre de
 bombes et leur portée, le nombre de clés dans l’inventaire et le numéro
 de niveau courant.
-
+     
 Gestion des bombes
 ------------------
 

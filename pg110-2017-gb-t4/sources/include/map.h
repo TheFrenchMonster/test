@@ -28,7 +28,7 @@ enum bonus_type {
 
 enum scenery_type {
 	SCENERY_STONE,     // 0000 
-	SCENERY_TREE,      // 0010 
+	SCENERY_TREE,      // 0001
 	SCENERY_PRINCESS   // 0010 
 };
 
