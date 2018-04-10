@@ -11,6 +11,7 @@
 #include <misc.h>
 #include <constant.h>
 #include <map.h>
+#include <time.h>
 
 struct player {
 	int x, y;
@@ -102,7 +103,9 @@ static int player_move_aux(struct player* player, struct map* map, int x, int y)
 	case CELL_MONSTER:
 		return 0;
 		break;
-
+	case CELL_BOMB:
+		return 0;
+		break;
 	default:
 		break;
 	}
@@ -130,6 +133,11 @@ int player_move(struct player* player, struct map* map) {
 							}
 						}
 					}
+				else if(map_get_cell_type(map, x, y-1) == CELL_DOOR) {
+					map_display(map_new(5,5));
+					player_set_position(player, 0, 0);
+					move=1;
+				}
 				else {
 					player->y--;
 					move = 1;
@@ -152,6 +160,14 @@ int player_move(struct player* player, struct map* map) {
 							}
 						}
 					}
+
+				else if(map_get_cell_type(map, x, y + 1) == CELL_DOOR) {
+
+					map_display(map_new(5,5));
+					player_set_position(player, 0, 0);
+					move=1;
+					}
+
 				else {
 					player->y++;
 					move = 1;
@@ -173,6 +189,11 @@ int player_move(struct player* player, struct map* map) {
 							}
 						}
 					}
+				else if(map_get_cell_type(map, x-1, y) == CELL_DOOR) {
+					map_display(map_new(5,5));
+					player_set_position(player, 0, 0);
+					move=1;
+				}
 				else {
 					player->x--;
 					move = 1;
@@ -194,6 +215,11 @@ int player_move(struct player* player, struct map* map) {
 							}
 						}
 					}
+				else if(map_get_cell_type(map, x + 1, y) == CELL_DOOR) {
+					map_display(map_new(5,5));
+					player_set_position(player, 0, 0);
+					move=1;
+									}
 				else {
 					player->x++;
 					move = 1;
@@ -203,9 +229,9 @@ int player_move(struct player* player, struct map* map) {
 		break;
 	}
 
-	if (move) {
-		map_set_cell_type(map, x, y, CELL_EMPTY);
-	}
+	//if (move) {
+		//map_set_cell_type(map, x, y, CELL_EMPTY);
+	//}
 	return move;
 }
 

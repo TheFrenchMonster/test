@@ -8,12 +8,17 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <map.h>
 #include <constant.h>
 #include <misc.h>
 #include <sprite.h>
 #include <window.h>
+#include <player.h>
+
+
+
 
 struct map {
 	int width;
@@ -67,6 +72,7 @@ int map_get_width(struct map* map)
 	assert(map != NULL);
 	return map->width;
 }
+
 
 int map_get_height(struct map* map)
 {
@@ -152,7 +158,19 @@ void map_display(struct map* map)
 	      window_display_image(sprite_get_door_opened(), x, y);
 	      break;
 	    case CELL_BOMB:
-	    	window_display_image(sprite_get_bomb(), x, y);
+	    	window_display_image(sprite_get_bomb4(), x, y);
+	    	sleep(1);
+	    	window_remove_image(x,y);
+	    	window_display_image(sprite_get_bomb3(), x, y);
+	    	sleep(1);
+	    	window_remove_image(x,y);
+	    	window_display_image(sprite_get_bomb2(), x, y);
+	    	sleep(1);
+	    	window_remove_image(x,y);
+	    	window_display_image(sprite_get_bomb1(), x, y);
+
+
+
 	    	break;
 	    }
 	  }
@@ -177,12 +195,21 @@ struct map* map_get_static(void){
 		  CELL_BOX,  CELL_EMPTY, CELL_DOOR, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY,
 			};
 
-		for (int i = 0; i < STATIC_MAP_WIDTH * STATIC_MAP_HEIGHT; i++)
+	FILE* fichier2 =NULL;
+	fichier2 = fopen("map/currentlevel.txt","w");
+	fputc('0',fichier2);
+	fputs("\n",fichier2);
+	fputc('0',fichier2);
+	fputs(":",fichier2);
+	fputs("0,0",fichier2);
+	fclose(fichier2);
+
+	for (int i = 0; i < STATIC_MAP_WIDTH * STATIC_MAP_HEIGHT; i++)
 			map->grid[i] = themap[i];
 	return map;
 }
 
-struct map* map_load_map(void)
+struct map* map_load_map(char level[])
 {
 	unsigned char themap[200];
 	int i=0;
@@ -193,7 +220,7 @@ struct map* map_load_map(void)
 	char *chaine[100];
 
 		FILE* fichier =NULL;
-		fichier = fopen("pg110-2017-gb-t4/sources/map/map_1","r");
+		fichier = fopen(level,"r");
 
 		while (fgets(*chaine, strlen(*chaine), fichier) != NULL) {
 			if(i==0) {
@@ -206,6 +233,7 @@ struct map* map_load_map(void)
 					strcat(height,chaine[k]);
 					k++;
 					}
+				map_new(atoi(width),atoi(height));
 				k=0;
 				i++;
 				}
@@ -372,10 +400,13 @@ struct map* map_load_map(void)
 			}
 
 	}
+
+
 		struct map* map = map_new(atoi(width), atoi(height));
 		for (int j = 0; j < atoi(width)*atoi(height); j++){
 				map->grid[j] = themap[j];
 		}
 			return map;
 }
+
 

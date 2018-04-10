@@ -51,6 +51,7 @@ struct map;
 struct map* map_new(int width, int height);
 void map_free(struct map* map);
 
+struct map* map_load_map(char level[]);
 
 // Return the height and width of a map
 int map_get_width(struct map* map);

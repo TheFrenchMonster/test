@@ -43,3 +43,13 @@ void window_refresh() {
 	assert(window);
 	SDL_Flip(window);
 }
+
+void window_remove_image(int x, int y) {
+	assert(window);
+
+	SDL_Rect place;
+	place.x = x;
+	place.y = y;
+
+	SDL_FillRect(window, &place, SDL_MapRGB(window->format, 255, 255, 255));
+}

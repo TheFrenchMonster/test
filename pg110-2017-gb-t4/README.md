@@ -161,6 +161,7 @@ d’un fichier. Pour représenter une partie, nous utiliserons un fichier suppl�
 - La troisième ligne indique le préfixe des fichiers cartes correspondants dans le répertoire *map*. L'exemple ci-dessous représente une partie avec 3 mondes dont chaque carte est de la forme `easy_N`. Le joueur se trouve sur la case en haut à gauche du premier niveau. Au chargement de la partie, il faut afficher le niveau sur lequel se trouve le joueur.
 
 ```
+
 3
 0:0,0
 easy
