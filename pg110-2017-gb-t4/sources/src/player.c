@@ -106,6 +106,19 @@ static int player_move_aux(struct player* player, struct map* map, int x, int y)
 	case CELL_BOMB:
 		return 0;
 		break;
+		
+	case CELL_DOOR:
+		if (door_open(x,y,map) == 1 || (player->key == 1) ){
+			int currentlvl = map_get_level(map);
+			map_free(map);
+			map_load_map(atoi(map_next_level(map)));
+			map_change_level(map,currentlvl);
+			//still things to do here
+			return 1;
+		}
+		else {
+			return 0;
+		}
 	default:
 		break;
 	}
@@ -133,11 +146,6 @@ int player_move(struct player* player, struct map* map) {
 							}
 						}
 					}
-				else if(map_get_cell_type(map, x, y-1) == CELL_DOOR) {
-					map_display(map_new(5,5));
-					player_set_position(player, 0, 0);
-					move=1;
-				}
 				else {
 					player->y--;
 					move = 1;
@@ -160,14 +168,6 @@ int player_move(struct player* player, struct map* map) {
 							}
 						}
 					}
-
-				else if(map_get_cell_type(map, x, y + 1) == CELL_DOOR) {
-
-					map_display(map_new(5,5));
-					player_set_position(player, 0, 0);
-					move=1;
-					}
-
 				else {
 					player->y++;
 					move = 1;
@@ -189,11 +189,7 @@ int player_move(struct player* player, struct map* map) {
 							}
 						}
 					}
-				else if(map_get_cell_type(map, x-1, y) == CELL_DOOR) {
-					map_display(map_new(5,5));
-					player_set_position(player, 0, 0);
-					move=1;
-				}
+				
 				else {
 					player->x--;
 					move = 1;
@@ -215,11 +211,6 @@ int player_move(struct player* player, struct map* map) {
 							}
 						}
 					}
-				else if(map_get_cell_type(map, x + 1, y) == CELL_DOOR) {
-					map_display(map_new(5,5));
-					player_set_position(player, 0, 0);
-					move=1;
-									}
 				else {
 					player->x++;
 					move = 1;

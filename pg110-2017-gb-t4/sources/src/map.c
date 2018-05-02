@@ -24,6 +24,7 @@ struct map {
 	int width;
 	int height;
 	unsigned char* grid;
+	int map_level;
 };
 
 #define CELL(i,j) ( (i) + (j) * map->width)
@@ -78,6 +79,24 @@ int map_get_height(struct map* map)
 {
 	assert(map);
 	return map->height;
+	
+}
+
+int map_get_level(struct map* map) {
+	assert(map);
+	return map->map_level;
+	
+}
+
+void map_change_level(struct map* map,int lvlnum) {
+	assert(map);
+	map->map_level=lvlnum +1;
+}
+
+void map_set_level(struct map* map) {
+	assert(map);
+	map->map_level = map->map_level + 1;
+		
 }
 
 enum cell_type map_get_cell_type(struct map* map, int x, int y)
@@ -90,6 +109,15 @@ void map_set_cell_type(struct map* map, int x, int y, enum cell_type type)
 {
 	assert(map && map_is_inside(map, x, y));
 	map->grid[CELL(x,y)] = type;
+}
+
+void display_bomb(struct map* map, int x, int y, unsigned char type){
+	switch (type & 0x0f) {
+	
+	
+	}
+	
+}
 }
 
 void display_bonus(struct map* map, int x, int y, unsigned char type)
@@ -110,6 +138,10 @@ void display_bonus(struct map* map, int x, int y, unsigned char type)
 
 	case BONUS_BOMB_NB_INC:
 		window_display_image(sprite_get_bonus(BONUS_BOMB_NB_INC), x, y);
+		break;
+		
+	case BONUS_LIFE:
+		window_display_image(sprite_get_bonus(BONUS_LIFE), x, y);
 		break;
 	}
 }
@@ -155,19 +187,20 @@ void map_display(struct map* map)
 	      break;
 	    case CELL_DOOR:
 	      // pas de gestion du type de porte
-	      window_display_image(sprite_get_door_opened(), x, y);
+	    	switch ((type & 0x80) >> 7){
+	    		case 0:
+	    			window_display_image(sprite_get_door_closed(), x, y);
+	    			break;
+	    		case 1:
+	    			window_display_image(sprite_get_door_opened(), x, y);
+	    			break;
+	    	break;
+	    	
+	    	}
+	    
 	      break;
 	    case CELL_BOMB:
-	    	window_display_image(sprite_get_bomb4(), x, y);
-	    	sleep(1);
-	    	window_remove_image(x,y);
-	    	window_display_image(sprite_get_bomb3(), x, y);
-	    	sleep(1);
-	    	window_remove_image(x,y);
-	    	window_display_image(sprite_get_bomb2(), x, y);
-	    	sleep(1);
-	    	window_remove_image(x,y);
-	    	window_display_image(sprite_get_bomb1(), x, y);
+	    	displ
 
 
 
@@ -209,204 +242,61 @@ struct map* map_get_static(void){
 	return map;
 }
 
-struct map* map_load_map(char level[])
+struct map* map_load_map(int N)
 {
-	unsigned char themap[200];
+	
+	char name[]="map/map_";
+	char levelnum[2];
+	sprintf(levelnum, "%d", N);
+	strcat(name,levelnum);
 	int i=0;
+	int j=0;
 	int k=0;
-	int l=0;
-	char width[5]="";
-	char height[5]="";
-	char *chaine[100];
+	int width;
+	int height;
+	FILE* fichier =NULL;
+	fichier = fopen(name,"r+");
 
-		FILE* fichier =NULL;
-		fichier = fopen(level,"r");
-
-		while (fgets(*chaine, strlen(*chaine), fichier) != NULL) {
-			if(i==0) {
-				while(*chaine[k] != 'x') {
-					strcat(width,chaine[k]);
-					k++;
-					}
-				k++;
-				while(*chaine[k] != '\0') {
-					strcat(height,chaine[k]);
-					k++;
-					}
-				map_new(atoi(width),atoi(height));
-				k=0;
-				i++;
-				}
-			else {
-				while(*chaine[k] != '\0') {
-					char cell[3];
-					while(*chaine[k] != ' ') {
-						strcat(cell,chaine[k]);
-						k++;
-					}
-
-					switch(atoi(cell)) {
-						case 0:
-							themap[l]=CELL_EMPTY;
-							l++;
-							break;
-						case 16:
-							themap[l]=CELL_STONE;
-							l++;
-							break;
-						case 17:
-							themap[l]=CELL_TREE;
-							l++;
-							break;
-						case 18:
-							themap[l]=CELL_PRINCESS;
-							l++;
-							break;
-						case 32:
-							themap[l]=CELL_BOX;
-							l++;
-							break;
-						case 33:
-							themap[l]=CELL_BOX_RANGEINC;
-							l++;
-							break;
-						case 34:
-							themap[l]=CELL_BOX_RANGEDEC;
-							l++;
-							break;
-						case 35:
-							themap[l]=CELL_BOX_BOMBINC;
-							l++;
-							break;
-						case 36:
-							themap[l]=CELL_BOX_BOMBDEC;
-							l++;
-							break;
-						case 37:
-							themap[l]=CELL_BOX_LIFE;
-							l++;
-							break;
-						case 38:
-							themap[l]=CELL_BOX_MONSTER;
-							l++;
-							break;
-						case 48:
-							themap[l]=CELL_DOOR;
-							l++;
-							break;
-						case 49:
-							themap[l]=CELL_DOOR;
-							l++;
-							break;
-						case 50:
-							themap[l]=CELL_DOOR;
-							l++;
-							break;
-						case 51:
-							themap[l]=CELL_DOOR;
-							l++;
-							break;
-						case 52:
-							themap[l]=CELL_DOOR;
-							l++;
-							break;
-						case 53:
-							themap[l]=CELL_DOOR;
-							l++;
-							break;
-						case 54:
-							themap[l]=CELL_DOOR;
-							l++;
-							break;
-						case 55:
-							themap[l]=CELL_DOOR;
-							l++;
-							break;
-						case 56:
-							themap[l]=CELL_DOOR;
-							l++;
-							break;
-						case 57:
-							themap[l]=CELL_DOOR;
-							l++;
-							break;
-						case 58:
-							themap[l]=CELL_DOOR;
-							l++;
-							break;
-						case 59:
-							themap[l]=CELL_DOOR;
-							l++;
-							break;
-						case 60:
-							themap[l]=CELL_DOOR;
-							l++;
-							break;
-						case 61:
-							themap[l]=CELL_DOOR;
-							l++;
-							break;
-						case 62:
-							themap[l]=CELL_DOOR;
-							l++;
-							break;
-						case 63:
-							themap[l]=CELL_DOOR;
-							l++;
-							break;
-						case 64:
-							themap[l]=CELL_KEY;
-							l++;
-							break;
-
-						case 80:
-							themap[l]=CELL_BONUS;
-							l++;
-							break;
-						case 81:
-							themap[l]=CELL_BONUS;
-							l++;
-							break;
-						case 82:
-							themap[l]=CELL_BONUS;
-							l++;
-							break;
-						case 83:
-							themap[l]=CELL_BONUS;
-							l++;
-							break;
-						case 84:
-							themap[l]=CELL_BONUS;
-							l++;
-							break;
-						case 85:
-							themap[l]=CELL_BONUS;
-							l++;
-							break;
-						case 96:
-							themap[l]=CELL_MONSTER;
-							l++;
-							break;
-						case 112:
-							themap[l]=CELL_BOMB;
-							l++;
-							break;
-						default:
-							l++;
-							break;
-					}
-
-				}
-			}
-
+	
+	
+	fscanf(fichier, "%d:%d" , &width , &height);
+	struct map* map = map_new(width,height);
+	
+	
+	for (i = 0; i < width; i++){
+			 for (j = 0; j < height; j++){
+				 fscanf(fichier, "%d" , &k);
+				 map->grid[CELL(j,i)] = k;
+			 }
 	}
 
+	fclose(fichier);
+	return map;
 
-		struct map* map = map_new(atoi(width), atoi(height));
-		for (int j = 0; j < atoi(width)*atoi(height); j++){
-				map->grid[j] = themap[j];
-		}
-			return map;
+		
 }
 
+int door_is_open(int x, int y, struct map* map){
+	unsigned char type = map->grid[CELL(x,y)];
+	return ((type & 0x80) >> 7);
+}
+
+
+char map_next_level(struct map* map){
+	int i=0;
+	int j=0;
+	assert(map != NULL);
+	assert(map->height > 0 && map->width > 0);
+
+	for (i = 0; i < map->width; i++) {
+		  for (j = 0; j < map->height; j++) {
+				  char type = map->grid[CELL(i,j)];
+				  if ((type & 0x0f) == CELL_DOOR){
+					  return ((type & 0x70) >> 4);
+				  }
+		  }
+	}
+
+	return -1;
+}
 

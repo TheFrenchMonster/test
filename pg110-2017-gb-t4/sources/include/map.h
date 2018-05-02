@@ -13,7 +13,9 @@ enum cell_type {
 	CELL_KEY=0x40,       	//  0100 0000
 	CELL_BONUS=0x50, 		// 	0101 0000
 	CELL_MONSTER=0x60, 		// 	0110 0000
-	CELL_BOMB=0x70 	   		// 	0111 0000
+	CELL_BOMB=0x70  		// 	0111 0000
+	CELL_PRINCESS=0x80		//  1000 0000
+	CELL_FIRE=0x90			//	1001 0000
 
 };
 
