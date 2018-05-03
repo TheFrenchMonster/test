@@ -112,13 +112,31 @@ void map_set_cell_type(struct map* map, int x, int y, enum cell_type type)
 }
 
 void display_bomb(struct map* map, int x, int y, unsigned char type){
-	switch (type & 0x0f) {
-	
-	
+	int startingTime = SDL_GetTicks();
+	while(type){
+		int currentTime = SDL_GetTicks();
+		int timer = (currentTime - startingTime);
+		if (0<timer && timer<1000) {
+			window_display_image(sprite_get_bomb4(), x, y);
+			}
+		else if (1000<timer && timer<2000) {
+			window_display_image(sprite_get_bomb3(), x, y);
+			}
+		else if (2000<timer && timer<3000) {
+			window_display_image(sprite_get_bomb2(), x, y);
+			}
+		else if (3000<timer && timer<4000) {
+			window_display_image(sprite_get_bomb1(), x, y);
+			type = 'w';
+			}
+		printf("%d",1);
 	}
-	
 
 }
+
+
+
+
 
 void display_bonus(struct map* map, int x, int y, unsigned char type)
 {
@@ -187,7 +205,7 @@ void map_display(struct map* map)
 	      break;
 	    case CELL_DOOR:
 	      // pas de gestion du type de porte
-	    	switch ((type & 0x80) >> 7){
+	    	switch (type & 0x01){
 	    		case 0:
 	    			window_display_image(sprite_get_door_closed(), x, y);
 	    			break;
@@ -200,6 +218,7 @@ void map_display(struct map* map)
 	    
 	      break;
 	    case CELL_BOMB:
+	    	display_bomb(map,x,y,type);
 	    	break;
 	    }
 	  }
@@ -274,7 +293,7 @@ struct map* load_map(int* N)
 
 int door_is_open(int x, int y, struct map* map){
 	unsigned char type = map->grid[CELL(x,y)];
-	return ((type & 0x80) >> 7);
+	return (type & 0x01);
 }
 
 
@@ -286,9 +305,9 @@ char map_next_level(struct map* map){
 
 	for (i = 0; i < map->width; i++) {
 		  for (j = 0; j < map->height; j++) {
-				  char type = map->grid[CELL(i,j)];
-				  if ((type & 0x0f) == CELL_DOOR){
-					  return ((type & 0x70) >> 4);
+				  unsigned char type = map->grid[CELL(i,j)];
+				  if ((type & 0xf0) == CELL_DOOR){
+					  return ((type & 0x0e) >> 1);
 				  }
 		  }
 	}

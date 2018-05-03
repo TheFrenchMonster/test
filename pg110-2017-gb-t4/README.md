@@ -223,7 +223,7 @@ l’explosion d’une caisse. Il en existe 5 :
 
 -   **bomb-** / **bomb+** : ajoute/enlève une bombe à l’inventaire. Le
     joueur dispose toujours d’au minimum 1 bombe.
-
+eas
 -   **vie+** : ajoute une vie
 
 Gestion des vies
