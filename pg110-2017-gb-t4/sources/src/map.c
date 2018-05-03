@@ -117,7 +117,7 @@ void display_bomb(struct map* map, int x, int y, unsigned char type){
 	
 	}
 	
-}
+
 }
 
 void display_bonus(struct map* map, int x, int y, unsigned char type)
@@ -163,7 +163,7 @@ void map_display(struct map* map)
 {
 	assert(map != NULL);
 	assert(map->height > 0 && map->width > 0);
-
+	char map_next_level(struct map* map);
 	int x, y;
 	for (int i = 0; i < map->width; i++) {
 	  for (int j = 0; j < map->height; j++) {
@@ -200,10 +200,6 @@ void map_display(struct map* map)
 	    
 	      break;
 	    case CELL_BOMB:
-	    	displ
-
-
-
 	    	break;
 	    }
 	  }
@@ -242,12 +238,12 @@ struct map* map_get_static(void){
 	return map;
 }
 
-struct map* map_load_map(int N)
+struct map* load_map(int* N)
 {
 	
 	char name[]="map/map_";
 	char levelnum[2];
-	sprintf(levelnum, "%d", N);
+	sprintf(levelnum, "%d", *N);
 	strcat(name,levelnum);
 	int i=0;
 	int j=0;
@@ -259,7 +255,7 @@ struct map* map_load_map(int N)
 
 	
 	
-	fscanf(fichier, "%d:%d" , &width , &height);
+	fscanf(fichier, "%dx%d" , &width , &height);
 	struct map* map = map_new(width,height);
 	
 	

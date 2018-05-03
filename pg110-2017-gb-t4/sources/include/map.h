@@ -13,9 +13,8 @@ enum cell_type {
 	CELL_KEY=0x40,       	//  0100 0000
 	CELL_BONUS=0x50, 		// 	0101 0000
 	CELL_MONSTER=0x60, 		// 	0110 0000
-	CELL_BOMB=0x70  		// 	0111 0000
-	CELL_PRINCESS=0x80		//  1000 0000
-	CELL_FIRE=0x90			//	1001 0000
+	CELL_BOMB=0x70, 		// 	0111 0000
+	CELL_FIRE=0x80,			//  1000 0000
 
 };
 
@@ -73,5 +72,10 @@ struct map* map_get_static();
 
 // Display the map on the screen
 void map_display(struct map* map);
+struct map* load_map(int* N);
+int map_get_level(struct map* map);
+int door_is_open(int x, int y, struct map* map);
+void map_change_level(struct map* map,int lvlnum);
+char map_next_level(struct map* map);
 
 #endif /* MAP_H_ */

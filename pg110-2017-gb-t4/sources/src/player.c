@@ -17,6 +17,7 @@ struct player {
 	int x, y;
 	enum direction current_direction;
 	int nb_bombs;
+	int key;
 };
 
 struct player* player_init(int bomb_number) {
@@ -26,6 +27,7 @@ struct player* player_init(int bomb_number) {
 
 	player->current_direction = SOUTH;
 	player->nb_bombs = bomb_number;
+	player->key=1;
 
 	return player;
 }
@@ -89,7 +91,7 @@ static int player_move_aux(struct player* player, struct map* map, int x, int y)
 	switch (map_get_cell_type(map, x, y)) {
 	case CELL_SCENERY:
 		return 0;
-		break;
+		break;player->key=0;
 
 	case CELL_BOX:
 
@@ -108,17 +110,39 @@ static int player_move_aux(struct player* player, struct map* map, int x, int y)
 		break;
 		
 	case CELL_DOOR:
-		if (door_open(x,y,map) == 1 || (player->key == 1) ){
+		if (door_is_open(x,y,map) == 1) {
 			int currentlvl = map_get_level(map);
 			map_free(map);
-			map_load_map(atoi(map_next_level(map)));
+			char nextlvl[]="x";
+			nextlvl[0]= map_next_level(map);
+			int x = atoi(nextlvl);
+			int* ptr;
+			ptr = &x;
+			load_map(ptr);
 			map_change_level(map,currentlvl);
+
 			//still things to do here
 			return 1;
 		}
+		else if (door_is_open(x,y,map) == 0 && (player->key == 1)) {
+			int currentlvl = map_get_level(map);
+			map_free(map);
+			char nextlvl[]="x";
+			nextlvl[0]= map_next_level(map);
+			int x = atoi(nextlvl);
+			int* ptr;
+			ptr = &x;
+			load_map(ptr);
+			map_change_level(map,currentlvl);
+			player->key--;
+			return 1;
+		}
+
 		else {
 			return 0;
+
 		}
+		break;
 	default:
 		break;
 	}

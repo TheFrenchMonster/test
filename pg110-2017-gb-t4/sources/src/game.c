@@ -9,6 +9,9 @@
 #include <misc.h>
 #include <window.h>
 #include <sprite.h>
+#include <player.h>
+#include <map.h>
+
 
 struct game {
 	struct map** maps;       // the game's map
@@ -23,7 +26,10 @@ game_new(void) {
 
 	struct game* game = malloc(sizeof(*game));
 	game->maps = malloc(sizeof(struct game));
-	game->maps[0] = map_get_static();
+	int x=0;
+	int* ptr;
+	ptr=&x;
+	game->maps[0] = load_map(ptr);
 	game->max_levels = 1;
 	game->current_level = 0;
 

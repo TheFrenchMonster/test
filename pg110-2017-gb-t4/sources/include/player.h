@@ -28,6 +28,7 @@ void player_set_current_way(struct player * player, enum direction direction);
 int  player_get_nb_bomb(struct player * player);
 void player_inc_nb_bomb(struct player * player);
 void player_dec_nb_bomb(struct player * player);
+void player_set_bomb(struct player* player, struct map* map);
 
 
 // Move the player according to the current direction
