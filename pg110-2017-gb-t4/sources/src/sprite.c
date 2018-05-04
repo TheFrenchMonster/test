@@ -39,6 +39,7 @@
 #define BOMB_TTL2       "sprite/bomb2.png"
 #define BOMB_TTL3       "sprite/bomb3.png"
 #define BOMB_TTL4       "sprite/bomb4.png"
+#define FIRE			"sprite/explosion.png"
 
 // Sprites of Bonus
 #define IMG_BONUS_BOMB_RANGE_INC  "sprite/bonus_bomb_range_inc.png"
@@ -124,6 +125,7 @@ static void map_load() {
 	bomb2= load_image(BOMB_TTL2);
 	bomb3 = load_image(BOMB_TTL3);
 	bomb4 = load_image(BOMB_TTL4);
+	fire = load_image(FIRE);
 }
 
 static void map_unload() {
@@ -204,6 +206,11 @@ SDL_Surface* sprite_get_bomb3(){
 SDL_Surface* sprite_get_bomb4(){
 	assert(bomb4);
 	return bomb4;
+}
+
+SDL_Surface* sprite_get_fire() {
+	assert(fire);
+	return fire;
 }
  SDL_Surface* sprite_get_banner_life() {
 	assert(banner_life);

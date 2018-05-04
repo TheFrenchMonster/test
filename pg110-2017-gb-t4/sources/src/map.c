@@ -88,10 +88,14 @@ int map_get_level(struct map* map) {
 	
 }
 
-void map_change_level(struct map* map,int lvlnum) {
+void map_dec_level(struct map* map,int lvlnum) {
 	assert(map);
-	map->map_level=lvlnum +1;
+	map->map_level=lvlnum -1;
 }
+
+void map_inc_level(struct map* map, int lvlnum) {
+	assert(map);
+	map->map_level = lvlnum + 1;
 
 void map_set_level(struct map* map) {
 	assert(map);
@@ -105,6 +109,13 @@ enum cell_type map_get_cell_type(struct map* map, int x, int y)
 	return map->grid[CELL(x,y)] & 0xf0;
 }
 
+int map_get_door_level(struct map* map, int x, int y)
+{
+	assert(map && map_is_inside(map, x, y));
+	unsigned char type = map->grid[CELL(x, y)]
+	return  ((type & 0x0e) >> 1);
+}
+
 void map_set_cell_type(struct map* map, int x, int y, enum cell_type type)
 {
 	assert(map && map_is_inside(map, x, y));
@@ -112,24 +123,20 @@ void map_set_cell_type(struct map* map, int x, int y, enum cell_type type)
 }
 
 void display_bomb(struct map* map, int x, int y, unsigned char type){
-	int startingTime = SDL_GetTicks();
-	while(type){
-		int currentTime = SDL_GetTicks();
-		int timer = (currentTime - startingTime);
-		if (0<timer && timer<1000) {
+	switch (type & 0x0f) {
+		case 0:
 			window_display_image(sprite_get_bomb4(), x, y);
-			}
-		else if (1000<timer && timer<2000) {
+			break;
+		case 1:
 			window_display_image(sprite_get_bomb3(), x, y);
-			}
-		else if (2000<timer && timer<3000) {
+			break;
+		case 2:
 			window_display_image(sprite_get_bomb2(), x, y);
-			}
-		else if (3000<timer && timer<4000) {
+			break;
+		case 3:
 			window_display_image(sprite_get_bomb1(), x, y);
-			type = 'w';
-			}
-		printf("%d",1);
+			break;
+
 	}
 
 }
@@ -220,6 +227,9 @@ void map_display(struct map* map)
 	    case CELL_BOMB:
 	    	display_bomb(map,x,y,type);
 	    	break;
+		case CELL_FIRE:
+			window_display_image(sprite_get_fire(), x, y);
+			break;
 	    }
 	  }
 	}

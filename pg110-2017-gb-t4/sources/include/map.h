@@ -46,6 +46,13 @@ enum compose_type {
     CELL_BOX_MONSTER  = CELL_BOX | BONUS_LIFE,
 };
 
+enum bomb_type {
+	BOMB_1 = CELL_BOMB,     // 0000 
+	BOMB_2 = CELL_BOMB,      // 0001
+	BOMB_3 = CELL_BOMB,		// 0010 
+	BOMB_4 = CELL_BOMB,		// 0011 
+};
+
 struct map;
 
 // Create a new empty map
@@ -75,7 +82,9 @@ void map_display(struct map* map);
 struct map* load_map(int* N);
 int map_get_level(struct map* map);
 int door_is_open(int x, int y, struct map* map);
-void map_change_level(struct map* map,int lvlnum);
+void map_dec_level(struct map* map, int lvlnum);
+void map_inc_level(struct map* map, int lvlnum);
+int map_get_door_level(struct map* map, int x, int y);
 char map_next_level(struct map* map);
 
 #endif /* MAP_H_ */

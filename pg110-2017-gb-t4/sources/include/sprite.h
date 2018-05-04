@@ -24,6 +24,7 @@ SDL_Surface* sprite_get_bomb1();
 SDL_Surface* sprite_get_bomb2();
 SDL_Surface* sprite_get_bomb3();
 SDL_Surface* sprite_get_bomb4();
+SDL_Surface* sprite_get_fire();
 
 SDL_Surface* sprite_get_number(short number);
 SDL_Surface* sprite_get_banner_life();
