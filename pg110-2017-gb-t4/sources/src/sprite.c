@@ -72,6 +72,7 @@ SDL_Surface* bomb1;
 SDL_Surface* bomb2;
 SDL_Surface* bomb3;
 SDL_Surface* bomb4;
+SDL_Surface* fire;
 
 // bonus
 #define NB_BONUS 4

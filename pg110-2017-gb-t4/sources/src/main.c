@@ -8,6 +8,7 @@
 #include <game.h>
 #include <window.h>
 #include <misc.h>
+#include <player.h>
 
 
 int main(int argc, char *argv[]) {
@@ -33,7 +34,6 @@ int main(int argc, char *argv[]) {
 	int done = 0;
 	while (!done) {
 		timer = SDL_GetTicks();
-
 		done = game_update(game);
 		game_display(game);
 

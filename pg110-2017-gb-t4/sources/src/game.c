@@ -11,6 +11,7 @@
 #include <sprite.h>
 #include <player.h>
 #include <map.h>
+#include <bomb.h>
 
 
 struct game {
@@ -18,6 +19,7 @@ struct game {
 	short max_levels;        // nb maps of the game
 	short current_level;
 	struct player* player;
+	struct bomb* bomb;
 };
 
 struct game*
@@ -32,8 +34,8 @@ game_new(void) {
 	game->maps[0] = load_map(ptr);
 	game->max_levels = 1;
 	game->current_level = 0;
-
-	game->player = player_init(1);
+	game->bomb = NULL;
+	game->player = player_init(5,1,5,2);
 	// Set default location of the player
 	player_set_position(game->player, 1, 0);
 
@@ -51,6 +53,11 @@ void game_free(struct game* game) {
 struct map* game_get_current_map(struct game* game) {
 	assert(game);
 	return game->maps[game->current_level];
+}
+
+struct bomb* game_get_bomb(struct game* game){
+	assert(game);
+	return game->bomb;
 }
 
 
@@ -94,7 +101,7 @@ void game_display(struct game* game) {
 	assert(game);
 
 	window_clear();
-
+	update_bomb(game->bomb,game->maps[0],game->player);
 	game_banner_display(game);
 	map_display(game_get_current_map(game));
 	player_display(game->player);
@@ -106,6 +113,7 @@ static short input_keyboard(struct game* game) {
 	SDL_Event event;
 	struct player* player = game_get_player(game);
 	struct map* map = game_get_current_map(game);
+	struct bomb* bomb = game_get_bomb(game);
 
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
@@ -132,7 +140,7 @@ static short input_keyboard(struct game* game) {
 				player_move(player, map);
 				break;
 			case SDLK_SPACE:
-				player_set_bomb(player,map);
+				game->bomb=set_bomb(player,map,bomb);
 				break;
 			default:
 				break;

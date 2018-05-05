@@ -67,6 +67,7 @@ int map_get_height(struct map* map);
 
 // Return the type of a cell
 enum cell_type map_get_cell_type(struct map* map, int x, int y);
+enum cell_type map_get_cell_sub_type(struct map* map, int x, int y);
 
 // Set the type of a cell
 void  map_set_cell_type(struct map* map, int x, int y, enum cell_type type);
@@ -84,7 +85,7 @@ int map_get_level(struct map* map);
 int door_is_open(int x, int y, struct map* map);
 void map_dec_level(struct map* map, int lvlnum);
 void map_inc_level(struct map* map, int lvlnum);
-int map_get_door_level(struct map* map, int x, int y);
+char map_get_door_level(struct map* map, int x, int y);
 char map_next_level(struct map* map);
 
 #endif /* MAP_H_ */

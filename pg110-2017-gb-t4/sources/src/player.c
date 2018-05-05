@@ -20,16 +20,21 @@ struct player {
 	int bomb_range;
 	int nb_bombs;
 	int key;
+	int last_attacked;
 };
 
-struct player* player_init(int bomb_number) {
+
+struct player* player_init(int bomb_number, int key_number, int hp_number, int bomb_range) {
 	struct player* player = malloc(sizeof(*player));
 	if (!player)
 		error("Memory error");
 
 	player->current_direction = SOUTH;
 	player->nb_bombs = bomb_number;
-	player->key=1;
+	player->key = 1;
+	player->hp = hp_number;
+	player->bomb_range = bomb_range;
+	player->last_attacked = 0;
 
 	return player;
 }
@@ -57,6 +62,15 @@ int player_get_y(struct player* player) {
 	return player->y;
 }
 
+int player_get_last_attacked(struct player* player){
+	assert(player != NULL);
+	return player->last_attacked;
+}
+
+void player_set_last_attacked(struct player* player,int time){
+	assert(player);
+	player->last_attacked = time;
+}
 void player_set_current_way(struct player* player, enum direction way) {
 	assert(player);
 	player->current_direction = way;
@@ -64,13 +78,18 @@ void player_set_current_way(struct player* player, enum direction way) {
 
 void player_dec_hp(struct player* player) {
 	assert(player);
-	currentHp = player->hp;
+	int currentHp = player->hp;
 	player->hp = currentHp - 1;
+}
+
+int player_get_hp(struct player* player) {
+	assert(player);
+	return player->hp;
 }
 
 void player_inc_hp(struct player* player) {
 	assert(player);
-	currentHp = player->hp;
+	int currentHp = player->hp;
 	player->hp = currentHp + 1;
 }
 
@@ -88,53 +107,9 @@ void player_dec_nb_bomb(struct player* player) {
 	assert(player);
 	player->nb_bombs -= 1;
 }
-
-void player_set_bomb(struct player* player, struct map* map){
+int player_get_bomb_range(struct player* player){
 	assert(player);
-	if (player_get_nb_bomb(player) >= 1){
-		int bomb = 1;
-		int x = player_get_x(player);
-		int y = player_get_y(player);
-		int range = player->bomb_range;
-		player_dec_nb_bomb(player);
-		int startingTime = SDL_GetTicks();
-		while (bomb == 1) {
-			int currentTime = SDL_GetTicks();
-			int timer = currentTime - startingTime;
-			if (0<timer && timer<1000) {
-				map_set_type(map, x, y, BOMB_1);
-			}
-			else if (1000<timer && timer<2000) {
-				map_set_type(map, x, y, BOMB_2);
-			}
-			else if (2000<timer && timer<3000) {
-				map_set_type(map, x, y, BOMB_3);
-			}
-			else if (3000<timer && timer<4000) {
-				map_set_type(map, x, y, BOMB_4);
-			}
-			else if (4000<timer && timer<5000) {
-				map_set_type(map, x, y, CELL_FIRE);
-				if (player_get_x(player) == x && player_get_y(player) == y) {
-					player_dec_hp(player);
-				}
-				if (map_get_cell_type(map, x + 1, y) != CELL_SCENERY && map_get_cell_type(map, x + 1, y) != CELL_DOOR) {
-					map_set_type(map, x + 1, y, CELL_FIRE);
-				}
-				if (map_get_cell_type(map, x - 1, y) != CELL_SCENERY && map_get_cell_type(map, x + 1, y) != CELL_DOOR) {
-					map_set_type(map, x - 1, y, CELL_FIRE);
-				}
-				if (map_get_cell_type(map, x , y+1) != CELL_SCENERY && map_get_cell_type(map, x + 1, y) != CELL_DOOR) {
-					map_set_type(map, x , y+1, CELL_FIRE);
-				}
-				if (map_get_cell_type(map, x , y-1) != CELL_SCENERY && map_get_cell_type(map, x + 1, y) != CELL_DOOR) {
-					map_set_type(map, x , y-1, CELL_FIRE);
-				}
-			
-
-
-		}
-	}
+	return player->bomb_range;
 }
 
 
@@ -167,33 +142,32 @@ static int player_move_aux(struct player* player, struct map* map, int x, int y)
 	case CELL_DOOR:
 		if (door_is_open(x, y, map) == 1) {
 			int currentlvl = map_get_level(map);
-			int x = map_get_door_level(map, x, y);
+			int lvl = map_get_door_level(map,x,y);
 			map_free(map);
 			int* ptr;
-			ptr = &x;
+			ptr = &lvl;
 			load_map(ptr);
 			if (x <= currentlvl) {
 				map_dec_level(map, currentlvl);
 			}
 			else {
-				map_inc_level(map, currentlvl)
+				map_inc_level(map, currentlvl);
 			}
 
-			//still things to do here
 			return 1;
 		}
-		else if (door_is_open(x,y,map) == 0 && (player->key == 1)) {
+		else if (door_is_open(x,y,map) == 0 && (player->key >= 1)) {
 			int currentlvl = map_get_level(map);
-			int x = map_get_door_level(map, x, y);
+			int lvl = map_get_door_level(map,x,y);
 			map_free(map);
 			int* ptr;
-			ptr = &x;
+			ptr = &lvl;
 			load_map(ptr);
 			if (x <= currentlvl) {
 				map_dec_level(map, currentlvl);
 			}
 			else {
-				map_inc_level(map, currentlvl)
+				map_inc_level(map, currentlvl);
 			}
 			player->key--;
 			return 1;

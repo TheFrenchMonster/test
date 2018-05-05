@@ -96,6 +96,7 @@ void map_dec_level(struct map* map,int lvlnum) {
 void map_inc_level(struct map* map, int lvlnum) {
 	assert(map);
 	map->map_level = lvlnum + 1;
+}
 
 void map_set_level(struct map* map) {
 	assert(map);
@@ -109,10 +110,16 @@ enum cell_type map_get_cell_type(struct map* map, int x, int y)
 	return map->grid[CELL(x,y)] & 0xf0;
 }
 
-int map_get_door_level(struct map* map, int x, int y)
+enum cell_type map_get_cell_sub_type(struct map* map, int x, int y)
 {
 	assert(map && map_is_inside(map, x, y));
-	unsigned char type = map->grid[CELL(x, y)]
+	return map->grid[CELL(x,y)] & 0x0f;
+}
+
+char map_get_door_level(struct map* map, int x, int y)
+{
+	assert(map && map_is_inside(map, x, y));
+	unsigned char type = map->grid[CELL(x, y)];
 	return  ((type & 0x0e) >> 1);
 }
 
@@ -307,21 +314,4 @@ int door_is_open(int x, int y, struct map* map){
 }
 
 
-char map_next_level(struct map* map){
-	int i=0;
-	int j=0;
-	assert(map != NULL);
-	assert(map->height > 0 && map->width > 0);
-
-	for (i = 0; i < map->width; i++) {
-		  for (j = 0; j < map->height; j++) {
-				  unsigned char type = map->grid[CELL(i,j)];
-				  if ((type & 0xf0) == CELL_DOOR){
-					  return ((type & 0x0e) >> 1);
-				  }
-		  }
-	}
-
-	return -1;
-}
 
