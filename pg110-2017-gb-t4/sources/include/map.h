@@ -68,6 +68,7 @@ int map_get_height(struct map* map);
 // Return the type of a cell
 enum cell_type map_get_cell_type(struct map* map, int x, int y);
 enum cell_type map_get_cell_sub_type(struct map* map, int x, int y);
+enum bonus_type map_get_bonus_type(struct map* map, int x, int y);
 
 // Set the type of a cell
 void  map_set_cell_type(struct map* map, int x, int y, enum cell_type type);

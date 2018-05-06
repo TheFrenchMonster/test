@@ -107,6 +107,17 @@ void player_dec_nb_bomb(struct player* player) {
 	assert(player);
 	player->nb_bombs -= 1;
 }
+
+void player_dec_bomb_range(struct player* player) {
+	assert(player);
+	player->bomb_range -= 1;
+}
+
+void player_inc_bomb_range(struct player* player) {
+	assert(player);
+	player->bomb_range += 1;
+}
+
 int player_get_bomb_range(struct player* player){
 	assert(player);
 	return player->bomb_range;
@@ -129,6 +140,30 @@ static int player_move_aux(struct player* player, struct map* map, int x, int y)
 		break;
 
 	case CELL_BONUS:
+			switch(map_get_bonus_type(map,x,y)){
+			case BONUS_BOMB_RANGE_INC:
+				player_inc_bomb_range(player);
+				map_set_cell_type(map,x,y,CELL_EMPTY);
+				break;
+			case BONUS_BOMB_RANGE_DEC:
+				player_dec_bomb_range(player);
+				map_set_cell_type(map,x,y,CELL_EMPTY);
+				break;
+			case BONUS_BOMB_NB_DEC:
+				player_dec_nb_bomb(player);
+				map_set_cell_type(map,x,y,CELL_EMPTY);
+				break;
+			case BONUS_BOMB_NB_INC:
+				player_inc_nb_bomb(player);
+				map_set_cell_type(map,x,y,CELL_EMPTY);
+				break;
+			case BONUS_LIFE:
+				player_inc_hp(player);
+				map_set_cell_type(map,x,y,CELL_EMPTY);
+				break;
+			case BONUS_MONSTER:
+				break;
+			}
 		return 1;
 		break;
 
