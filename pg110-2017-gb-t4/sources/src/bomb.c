@@ -93,9 +93,13 @@ void start_fire(struct map* map, int x, int y, struct player* player, int bomb_r
 			}
 
 		}
-
-
+		else {
+			break;
+		}
 	}
+
+
+
 
 	for(int i=0; i<=bomb_range;i++) {
 		if (map_get_cell_type(map, x - i, y) != CELL_SCENERY && map_get_cell_type(map, x - i, y) != CELL_DOOR) {
@@ -113,6 +117,9 @@ void start_fire(struct map* map, int x, int y, struct player* player, int bomb_r
 				map_set_cell_type(map, x-i, y, CELL_FIRE);
 			}
 		}
+		else {
+			break;
+			}
 
 	}
 
@@ -133,7 +140,9 @@ void start_fire(struct map* map, int x, int y, struct player* player, int bomb_r
 			}
 
 		}
-
+		else {
+			break;
+		}
 
 	}
 
@@ -154,7 +163,9 @@ void start_fire(struct map* map, int x, int y, struct player* player, int bomb_r
 			}
 
 		}
-
+		else {
+			break;
+		}
 
 	}
 }
@@ -190,16 +201,16 @@ void update_bomb(struct bomb* bomb, struct map* map, struct player* player) {
 		int bomb_range = currentbomb->bomb_range;
 		int timer = currentTime - bomb_get_birth(currentbomb);
 		if (0<timer && timer<1000) {
-			map_set_cell_type(map, x, y, BOMB_1);
+			map_set_cell_type(map, x, y, 112);
 		}
 		else if (1000<timer && timer<2000) {
-			map_set_cell_type(map, x, y, BOMB_2);
+			map_set_cell_type(map, x, y, 113);
 		}
 		else if (2000<timer && timer<3000) {
-			map_set_cell_type(map, x, y, BOMB_3);
+			map_set_cell_type(map, x, y, 114);
 		}
 		else if (3000<timer && timer<4000) {
-			map_set_cell_type(map, x, y, BOMB_4);
+			map_set_cell_type(map, x, y, 115);
 		}
 		else if (4000<timer && timer<5000) {
 			start_fire(map,x,y,player,bomb_range);
