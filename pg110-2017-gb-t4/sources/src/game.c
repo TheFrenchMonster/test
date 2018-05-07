@@ -49,7 +49,14 @@ void game_free(struct game* game) {
 	for (int i = 0; i < game->max_levels; i++)
 		map_free(game->maps[i]);
 }
-
+void game_clear_bomb(struct game* game){
+	assert(game);
+	game->bomb = NULL;
+}
+void game_clear_gamebomb(struct game* game){
+	assert(game);
+	game->bomb = NULL;
+}
 struct map* game_get_current_map(struct game* game) {
 	assert(game);
 	return game->maps[game->current_level];

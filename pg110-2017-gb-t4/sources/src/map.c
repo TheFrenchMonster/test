@@ -16,7 +16,7 @@
 #include <sprite.h>
 #include <window.h>
 #include <player.h>
-
+#include <game.h>
 
 
 
@@ -295,7 +295,6 @@ struct map* load_map(int* N)
 	FILE* fichier =NULL;
 	fichier = fopen(name,"r+");
 
-	
 	
 	fscanf(fichier, "%dx%d" , &width , &height);
 	struct map* map = map_new(width,height);

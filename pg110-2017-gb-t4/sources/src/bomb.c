@@ -11,6 +11,7 @@
 #include <assert.h>
 
 
+#define min(a,b) (a<=b?a:b)
 
 struct bomb {
 	int x;
@@ -19,6 +20,7 @@ struct bomb {
 	int bomb_range;
 	struct bomb *next;
 	struct bomb *prev;
+	int block[4];
 
 };
 void set_bomb_position(struct bomb* bomb, int x, int y){
@@ -58,6 +60,10 @@ struct bomb* set_bomb(struct player* player, struct map* map, struct bomb* game_
 		new_bomb->y=y;
 		new_bomb->birth=SDL_GetTicks();
 		new_bomb->bomb_range = player_get_bomb_range(player);
+		new_bomb->block[0] = player_get_bomb_range(player);
+		new_bomb->block[1] = player_get_bomb_range(player);
+		new_bomb->block[2] = player_get_bomb_range(player);
+		new_bomb->block[3] = player_get_bomb_range(player);
 
 		if (game_bomb!= NULL) {
 			game_bomb->prev=new_bomb;
@@ -73,10 +79,10 @@ struct bomb* set_bomb(struct player* player, struct map* map, struct bomb* game_
 
 
 
-void start_fire(struct map* map, int x, int y, struct player* player, int bomb_range, int timer){
+void start_fire(struct map* map, int x, int y, struct player* player, int bomb_range, struct bomb* bomb){
 	map_set_cell_type(map, x, y, CELL_FIRE);
-	for(int i=0; i<=bomb_range;i++) {
-		if(x+i<=map_get_width(map)){
+	for(int i=0; i<=min(bomb_range,bomb->block[0]);i++) {
+		if(x+i<=map_get_width(map)-1){
 			if (map_get_cell_type(map, x +i, y) != CELL_SCENERY && map_get_cell_type(map, x+i , y) != CELL_DOOR && map_get_cell_type(map, x+i , y) != CELL_BOX ) {
 				if ((x+i == player_get_x(player)) && (y  == player_get_y(player))){
 					int currentTime = SDL_GetTicks();
@@ -112,7 +118,7 @@ void start_fire(struct map* map, int x, int y, struct player* player, int bomb_r
 
 
 
-	for(int i=0; i<=bomb_range;i++) {
+	for(int i=0; i<=min(bomb_range,bomb->block[1]);i++) {
 		if(x-i>=0){
 			if (map_get_cell_type(map, x -i, y) != CELL_SCENERY && map_get_cell_type(map, x-i , y) != CELL_DOOR ) {
 				if ((x-i == player_get_x(player)) && (y  == player_get_y(player))){
@@ -143,8 +149,8 @@ void start_fire(struct map* map, int x, int y, struct player* player, int bomb_r
 		}
 	}
 
-	for(int i=0; i<=bomb_range;i++) {
-		if(y+i<=map_get_height(map)){
+	for(int i=0; i<=min(bomb_range,bomb->block[2]);i++) {
+		if(y+i<=map_get_height(map)-1){
 			if (map_get_cell_type(map, x , y+i) != CELL_SCENERY && map_get_cell_type(map, x , y+i) != CELL_DOOR && map_get_cell_type(map, x , y+i) != CELL_BOX) {
 				if ((x == player_get_x(player)) && (y +i == player_get_y(player))){
 					int currentTime = SDL_GetTicks();
@@ -177,7 +183,7 @@ void start_fire(struct map* map, int x, int y, struct player* player, int bomb_r
 		}
 	}
 
-	for(int i=0; i<=bomb_range;i++) {
+	for(int i=0; i<=min(bomb_range,bomb->block[3]);i++) {
 		if(y-i>=0){
 			if (map_get_cell_type(map, x , y-i) != CELL_SCENERY && map_get_cell_type(map, x , y-i) != CELL_DOOR && map_get_cell_type(map, x , y-i) != CELL_BOX) {
 				if ((x == player_get_x(player)) && (y -i == player_get_y(player))){
@@ -255,6 +261,33 @@ void destroy_bonus(struct map* map, int x, int y,int bomb_range){
 			}
 		}
 }
+
+void check_fire(struct bomb* bomb, struct map* map, int x, int y, int bomb_range){
+	for(int i=0;i<=bomb_range;i++){
+		if (map_get_cell_type(map,x+i,y) == CELL_BOX){
+			bomb->block[0]=i;
+			break;
+		}
+	}
+	for(int i=0;i<=bomb_range;i++){
+		if (map_get_cell_type(map,x-i,y) == CELL_BOX){
+			bomb->block[1]=i;
+			break;
+			}
+		}
+	for(int i=0;i<=bomb_range;i++){
+		if (map_get_cell_type(map,x,y+i) == CELL_BOX){
+			bomb->block[2]=i;
+			break;
+		}
+	}
+	for(int i=0;i<=bomb_range;i++){
+		if (map_get_cell_type(map,x,y-i) == CELL_BOX){
+			bomb->block[3]=i;
+			break;
+		}
+	}
+}
 void update_bomb(struct bomb* bomb, struct map* map, struct player* player) {
 	if(bomb != NULL){
 		struct bomb* currentbomb = bomb;
@@ -277,10 +310,12 @@ void update_bomb(struct bomb* bomb, struct map* map, struct player* player) {
 			map_set_cell_type(map, x, y, 115);
 			if (timer>3950){
 				destroy_bonus(map,x,y,bomb_range);
+				check_fire(currentbomb,map,x,y,bomb_range);
+
 			}
 		}
 		else if (4000<timer && timer<5000) {
-			start_fire(map,x,y,player,bomb_range,timer);
+			start_fire(map,x,y,player,bomb_range,currentbomb);
 		}
 		else if (timer>6000) {
 			stop_fire(map,x,y,player,bomb_range);

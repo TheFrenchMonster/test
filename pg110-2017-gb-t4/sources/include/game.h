@@ -28,5 +28,6 @@ void game_display(struct game* game);
 
 // update
 int game_update(struct game* game);
+void game_clear_bomb(struct game* game);
 
 #endif /* GAME_H_ */
