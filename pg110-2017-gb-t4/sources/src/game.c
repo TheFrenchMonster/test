@@ -35,7 +35,7 @@ game_new(void) {
 	game->max_levels = 1;
 	game->current_level = 0;
 	game->bomb = NULL;
-	game->player = player_init(5,1,5,2);
+	game->player = player_init(5,1,2,2);
 	// Set default location of the player
 	player_set_position(game->player, 1, 0);
 

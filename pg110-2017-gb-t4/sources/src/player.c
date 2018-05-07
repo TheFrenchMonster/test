@@ -79,7 +79,12 @@ void player_set_current_way(struct player* player, enum direction way) {
 void player_dec_hp(struct player* player) {
 	assert(player);
 	int currentHp = player->hp;
+	if (currentHp>=1){
 	player->hp = currentHp - 1;
+	}
+	if (currentHp == 0){
+		player_game_over();
+	}
 }
 
 int player_get_hp(struct player* player) {
@@ -128,14 +133,23 @@ static int player_move_aux(struct player* player, struct map* map, int x, int y)
 
 	if (!map_is_inside(map, x, y))
 		return 0;
+	int currentTime = SDL_GetTicks();
 
 	switch (map_get_cell_type(map, x, y)) {
 	case CELL_SCENERY:
-		return 0;
+		switch(map_get_scenery_type(map,x,y)){
+		case SCENERY_PRINCESS:
+			player_win_game();
+			return 1;
+			break;
+		default:
+			return 0;
+			break;
+		}
+
 		break;
 
 	case CELL_BOX:
-
 		return 1;
 		break;
 
@@ -167,9 +181,6 @@ static int player_move_aux(struct player* player, struct map* map, int x, int y)
 		return 1;
 		break;
 
-	case CELL_MONSTER:
-		return 0;
-		break;
 	case CELL_BOMB:
 		return 0;
 		break;
@@ -213,6 +224,24 @@ static int player_move_aux(struct player* player, struct map* map, int x, int y)
 
 		}
 		break;
+	case CELL_FIRE:
+		if (currentTime - player_get_last_attacked(player) > 2000) {
+			player_dec_hp(player);
+			player_set_last_attacked(player,SDL_GetTicks());
+		}
+		return 1;
+		break;
+	case CELL_MONSTER:
+		if (currentTime - player_get_last_attacked(player) > 2000) {
+			player_dec_hp(player);
+			player_set_last_attacked(player,SDL_GetTicks());
+		}
+		return 1;
+		break;
+	case CELL_KEY:
+		player->key++;
+		return 1;
+		break;
 	default:
 		break;
 	}
@@ -233,8 +262,8 @@ int player_move(struct player* player, struct map* map) {
 				if(map_get_cell_type(map, x, y-1) == CELL_BOX) {
 					if(map_get_cell_type(map, x, y-2) == CELL_EMPTY){
 						if(y-2>=0){
+							map_set_cell_type(map, x, y-2, CELL_BOX | map_get_cell_sub_type(map,x,y-1));
 							map_set_cell_type(map, x, y-1, CELL_EMPTY);
-							map_set_cell_type(map, x, y-2, CELL_BOX);
 							player->y--;
 							move = 1;
 							}
@@ -254,9 +283,9 @@ int player_move(struct player* player, struct map* map) {
 			if(y+1<=map_get_height(map)-1 ){
 				if(map_get_cell_type(map, x, y+1) == CELL_BOX) {
 					if(map_get_cell_type(map, x, y+2) == CELL_EMPTY){
-						if(y+2<=11){
+						if(y+2<=map_get_height(map)-1){
+							map_set_cell_type(map, x, y+2, CELL_BOX | map_get_cell_sub_type(map,x,y+1));
 							map_set_cell_type(map, x, y+1, CELL_EMPTY);
-							map_set_cell_type(map, x, y+2, CELL_BOX);
 							player->y++;
 							move = 1;
 							}
@@ -276,8 +305,8 @@ int player_move(struct player* player, struct map* map) {
 				if(map_get_cell_type(map, x-1, y) == CELL_BOX) {
 					if(map_get_cell_type(map, x-2, y) == CELL_EMPTY){
 						if(x-2>=0){
+							map_set_cell_type(map, x-2, y, CELL_BOX | map_get_cell_sub_type(map,x-1,y));
 							map_set_cell_type(map, x-1, y, CELL_EMPTY);
-							map_set_cell_type(map, x-2, y, CELL_BOX);
 							player->x--;
 							move = 1;
 							}
@@ -297,9 +326,9 @@ int player_move(struct player* player, struct map* map) {
 			if(x+1<=map_get_width(map)-1) {
 				if(map_get_cell_type(map, x+1, y) == CELL_BOX) {
 					if(map_get_cell_type(map, x+2, y) == CELL_EMPTY){
-						if(x+2<=map_get_width(map)){
+						if(x+2<=map_get_width(map)-1){
+							map_set_cell_type(map, x+2, y, CELL_BOX | map_get_cell_sub_type(map,x+1,y));
 							map_set_cell_type(map, x+1, y, CELL_EMPTY);
-							map_set_cell_type(map, x+2, y, CELL_BOX);
 							player->x++;
 							move = 1;
 							}
@@ -314,9 +343,6 @@ int player_move(struct player* player, struct map* map) {
 		break;
 	}
 
-	//if (move) {
-		//map_set_cell_type(map, x, y, CELL_EMPTY);
-	//}
 	return move;
 }
 
@@ -326,3 +352,14 @@ void player_display(struct player* player) {
 			player->x * SIZE_BLOC, player->y * SIZE_BLOC);
 }
 
+void player_game_over(){
+	window_refresh();
+	SDL_Delay(5000);
+	exit(EXIT_SUCCESS);
+}
+
+void player_win_game(){
+	window_refresh();
+	SDL_Delay(5000);
+	exit(EXIT_SUCCESS);
+}
