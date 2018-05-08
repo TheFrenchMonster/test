@@ -44,5 +44,7 @@ void player_display(struct player* player);
 
 void player_set_last_attacked(struct player* player,int time);
 int player_get_last_attacked(struct player* player);
-
+int player_get_next_level(struct player* player);
+void player_set_next_level(struct player* player);
+int player_get_key(struct player* player);
 #endif /* PLAYER_H_ */

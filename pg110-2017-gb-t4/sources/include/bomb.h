@@ -4,7 +4,7 @@
  ******************************************************************************/
 #include <player.h>
 #include <map.h>
-#include <map.h>
+#include <monster.h>
 
 struct bomb;
 
@@ -14,6 +14,6 @@ int bomb_get_x(struct bomb* bomb);
 int bomb_get_y(struct bomb* bomb);
 void set_bomb_position(struct bomb* bomb, int x, int y);
 int bomb_get_birth(struct bomb* bomb);
-void update_bomb(struct bomb* bomb, struct map* map, struct player* player);
+void update_bomb(struct bomb* bomb, struct map* map, struct player* player,struct monster** monster);
 void stop_fire(struct map* map, int x, int y, struct player* player, int bomb_range);
-void start_fire(struct map* map, int x, int y, struct player* player, int bomb_range,struct bomb* bomb);
+void start_fire(struct map* map, int x, int y, struct player* player, int bomb_range,struct bomb* bomb,struct monster** monster);

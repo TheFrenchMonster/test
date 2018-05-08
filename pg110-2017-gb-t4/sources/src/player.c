@@ -21,6 +21,7 @@ struct player {
 	int nb_bombs;
 	int key;
 	int last_attacked;
+	int next_level;
 };
 
 
@@ -31,10 +32,11 @@ struct player* player_init(int bomb_number, int key_number, int hp_number, int b
 
 	player->current_direction = SOUTH;
 	player->nb_bombs = bomb_number;
-	player->key = 1;
+	player->key = 0;
 	player->hp = hp_number;
 	player->bomb_range = bomb_range;
 	player->last_attacked = 0;
+	player->next_level = 0;
 
 	return player;
 }
@@ -128,7 +130,18 @@ int player_get_bomb_range(struct player* player){
 	return player->bomb_range;
 }
 
-
+int player_get_next_level(struct player* player){
+	assert(player);
+	return player->next_level;
+}
+void player_set_next_level(struct player* player){
+	assert(player);
+	player->next_level=0;
+}
+int player_get_key(struct player* player){
+	assert(player);
+	return player->key;
+}
 static int player_move_aux(struct player* player, struct map* map, int x, int y) {
 
 	if (!map_is_inside(map, x, y))
@@ -193,13 +206,13 @@ static int player_move_aux(struct player* player, struct map* map, int x, int y)
 			int* ptr;
 			ptr = &lvl;
 			load_map(ptr);
-			if (x <= currentlvl) {
+			if (lvl <= currentlvl) {
 				map_dec_level(map, currentlvl);
 			}
 			else {
 				map_inc_level(map, currentlvl);
 			}
-
+			player->next_level=1;
 			return 1;
 		}
 		else if (door_is_open(x,y,map) == 0 && (player->key >= 1)) {
@@ -209,13 +222,14 @@ static int player_move_aux(struct player* player, struct map* map, int x, int y)
 			int* ptr;
 			ptr = &lvl;
 			load_map(ptr);
-			if (x <= currentlvl) {
+			if (lvl <= currentlvl) {
 				map_dec_level(map, currentlvl);
 			}
 			else {
 				map_inc_level(map, currentlvl);
 			}
 			player->key--;
+			player->next_level=1;
 			return 1;
 		}
 
@@ -240,6 +254,7 @@ static int player_move_aux(struct player* player, struct map* map, int x, int y)
 		break;
 	case CELL_KEY:
 		player->key++;
+		map_set_cell_type(map,x,y,CELL_EMPTY);
 		return 1;
 		break;
 	default:

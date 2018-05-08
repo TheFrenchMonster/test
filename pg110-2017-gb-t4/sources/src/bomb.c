@@ -9,7 +9,7 @@
 #include <constant.h>
 #include <player.h>
 #include <assert.h>
-
+#include <monster.h>
 
 #define min(a,b) (a<=b?a:b)
 
@@ -79,7 +79,7 @@ struct bomb* set_bomb(struct player* player, struct map* map, struct bomb* game_
 
 
 
-void start_fire(struct map* map, int x, int y, struct player* player, int bomb_range, struct bomb* bomb){
+void start_fire(struct map* map, int x, int y, struct player* player, int bomb_range, struct bomb* bomb,struct monster** monster){
 	map_set_cell_type(map, x, y, CELL_FIRE);
 	for(int i=0; i<=min(bomb_range,bomb->around[0]);i++) {
 		if(x+i<=map_get_width(map)-1){
@@ -94,14 +94,17 @@ void start_fire(struct map* map, int x, int y, struct player* player, int bomb_r
 					}
 				}
 				else if ((map_get_cell_type(map, x+i , y) == CELL_BONUS)){
-					printf("%d",5);
 					break;
+				}
+				else if (map_get_cell_type(map, x+i , y) == CELL_MONSTER){
+					decrease_hp_monster(monster, x+i,y);
 				}
 
 				else 	{
 					map_set_cell_type(map, x+i, y, CELL_FIRE);
 				}
 			}
+
 			else if (map_get_cell_type(map, x+i , y) == CELL_BOX){
 				map_set_cell_type(map, x+i, y, CELL_BONUS | map_get_cell_sub_type(map,x+i,y));
 				break;
@@ -131,13 +134,16 @@ void start_fire(struct map* map, int x, int y, struct player* player, int bomb_r
 					}
 				}
 				else if ((map_get_cell_type(map, x-i , y) == CELL_BONUS)){
-					printf("%d",5);
 					break;
+				}
+				else if (map_get_cell_type(map, x-i , y) == CELL_MONSTER){
+					decrease_hp_monster(monster, x-i,y);
 				}
 				else {
 					map_set_cell_type(map, x-i, y, CELL_FIRE);
 				}
 			}
+
 			else if (map_get_cell_type(map, x-i , y) == CELL_BOX){
 				map_set_cell_type(map, x-i, y, CELL_BONUS | map_get_cell_sub_type(map,x-i,y));
 				break;
@@ -162,15 +168,17 @@ void start_fire(struct map* map, int x, int y, struct player* player, int bomb_r
 					}
 				}
 				else if ((map_get_cell_type(map, x , y+i) == CELL_BONUS)){
-					printf("%d",5);
 					break;
-
+				}
+				else if (map_get_cell_type(map, x , y+i) == CELL_MONSTER){
+					decrease_hp_monster(monster, x,y+i);
 				}
 				else {
 					map_set_cell_type(map, x, y+i, CELL_FIRE);
 				}
 
 			}
+
 			else if (map_get_cell_type(map, x , y+i) == CELL_BOX){
 				map_set_cell_type(map, x, y+i, CELL_BONUS | map_get_cell_sub_type(map,x,y+i));
 				break;
@@ -197,13 +205,16 @@ void start_fire(struct map* map, int x, int y, struct player* player, int bomb_r
 				}
 				else if ((map_get_cell_type(map, x, y-i) == CELL_BONUS)){
 					break;
-
+				}
+				else if (map_get_cell_type(map, x , y-i) == CELL_MONSTER){
+					decrease_hp_monster(monster, x,y-i);
 				}
 				else {
 					map_set_cell_type(map, x, y-i, CELL_FIRE);
 				}
 
 			}
+
 			else if (map_get_cell_type(map, x , y-i) == CELL_BOX){
 				map_set_cell_type(map, x, y-i, CELL_BONUS | map_get_cell_sub_type(map,x,y-i));
 				break;
@@ -288,7 +299,7 @@ void check_fire(struct bomb* bomb, struct map* map, int x, int y, int bomb_range
 		}
 	}
 }
-void update_bomb(struct bomb* bomb, struct map* map, struct player* player) {
+void update_bomb(struct bomb* bomb, struct map* map, struct player* player,struct monster** monster) {
 	if(bomb != NULL){
 		struct bomb* currentbomb = bomb;
 		struct bomb* tmpbomb = malloc(sizeof(*tmpbomb));
@@ -296,49 +307,40 @@ void update_bomb(struct bomb* bomb, struct map* map, struct player* player) {
 			int currentTime= SDL_GetTicks();
 			int x = currentbomb->x;
 			int y = currentbomb->y;
-			if(map_get_cell_type(map,x,y)==CELL_EMPTY){
+
+			int bomb_range = currentbomb->bomb_range;
+			int timer = currentTime - bomb_get_birth(currentbomb);
+			if (0<timer && timer<1000) {
+			map_set_cell_type(map, x, y, 112);
+			}
+			else if (1000<timer && timer<2000) {
+				map_set_cell_type(map, x, y, 113);
+			}
+			else if (2000<timer && timer<3000) {
+				map_set_cell_type(map, x, y, 114);
+			}
+			else if (3000<timer && timer<4000) {
+				map_set_cell_type(map, x, y, 115);
+				if (timer>3950){
+					destroy_bonus(map,x,y,bomb_range);
+					check_fire(currentbomb,map,x,y,bomb_range);
+				}
+			}
+			else if (4000<timer && timer<5000) {
+				start_fire(map,x,y,player,bomb_range,currentbomb,monster);
+			}
+			else if (timer>6000) {
+				stop_fire(map,x,y,player,bomb_range);
 				if (currentbomb->next == NULL && currentbomb->prev !=NULL) {
 					tmpbomb = currentbomb;
 					(currentbomb->prev)->next=NULL;
 					free(tmpbomb);
-				}
-				currentbomb = currentbomb->next;
-			}
-			else {
-				int bomb_range = currentbomb->bomb_range;
-				int timer = currentTime - bomb_get_birth(currentbomb);
-				if (0<timer && timer<1000) {
-					map_set_cell_type(map, x, y, 112);
-				}
-				else if (1000<timer && timer<2000) {
-					map_set_cell_type(map, x, y, 113);
-				}
-				else if (2000<timer && timer<3000) {
-					map_set_cell_type(map, x, y, 114);
-				}
-				else if (3000<timer && timer<4000) {
-					map_set_cell_type(map, x, y, 115);
-					if (timer>3950){
-						destroy_bonus(map,x,y,bomb_range);
-						check_fire(currentbomb,map,x,y,bomb_range);
-
 					}
 				}
-				else if (4000<timer && timer<5000) {
-					start_fire(map,x,y,player,bomb_range,currentbomb);
-				}
-				else if (timer>6000) {
-					stop_fire(map,x,y,player,bomb_range);
-					if (currentbomb->next == NULL && currentbomb->prev !=NULL) {
-						tmpbomb = currentbomb;
-						(currentbomb->prev)->next=NULL;
-						free(tmpbomb);
-						}
-					}
-				currentbomb = currentbomb->next;
-				}
+			currentbomb = currentbomb->next;
 			}
 		}
+
 
 	}
 

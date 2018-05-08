@@ -12,6 +12,7 @@
 #include <player.h>
 #include <map.h>
 #include <bomb.h>
+#include <monster.h>
 
 
 struct game {
@@ -20,6 +21,7 @@ struct game {
 	short current_level;
 	struct player* player;
 	struct bomb* bomb;
+	struct monster* monster;
 };
 
 struct game*
@@ -32,14 +34,29 @@ game_new(void) {
 	int* ptr;
 	ptr=&x;
 	game->maps[0] = load_map(ptr);
+	ini_map_level(game->maps[0]);
 	game->max_levels = 1;
 	game->current_level = 0;
 	game->bomb = NULL;
+	game->monster = NULL;
 	game->player = player_init(5,1,2,2);
 	// Set default location of the player
 	player_set_position(game->player, 1, 0);
+	game->monster = monster_spawn_map(game->monster, game->maps[0]);
+
 
 	return game;
+}
+
+void game_next_map(struct game* game){
+	if(player_get_next_level(game->player)==1){
+		free(game->monster);
+		free(game->bomb);
+		game->monster=NULL;
+		game->bomb=NULL;
+		game->monster = monster_spawn_map(game->monster, game->maps[0]);
+		player_set_next_level(game->player);
+	}
 }
 
 void game_free(struct game* game) {
@@ -49,14 +66,7 @@ void game_free(struct game* game) {
 	for (int i = 0; i < game->max_levels; i++)
 		map_free(game->maps[i]);
 }
-void game_clear_bomb(struct game* game){
-	assert(game);
-	game->bomb = NULL;
-}
-void game_clear_gamebomb(struct game* game){
-	assert(game);
-	game->bomb = NULL;
-}
+
 struct map* game_get_current_map(struct game* game) {
 	assert(game);
 	return game->maps[game->current_level];
@@ -67,6 +77,10 @@ struct bomb* game_get_bomb(struct game* game){
 	return game->bomb;
 }
 
+struct monster* game_get_monster(struct game* game){
+	assert(game);
+	return game->monster;
+}
 
 struct player* game_get_player(struct game* game) {
 	assert(game);
@@ -102,16 +116,26 @@ void game_banner_display(struct game* game) {
 
 	x = 3 * white_bloc + 5 * SIZE_BLOC;
 	window_display_image(sprite_get_number(player_get_bomb_range(game_get_player(game))), x, y);
+
+
+
+	if(player_get_key(game_get_player(game)) >=1 ){
+		x = 4 * white_bloc + 5 * SIZE_BLOC;
+		window_display_image(sprite_get_key(), x, y);
+	}
 }
 
 void game_display(struct game* game) {
 	assert(game);
-
+	printf("%d",map_get_level(game_get_current_map(game)));
 	window_clear();
-	update_bomb(game->bomb,game->maps[0],game->player);
+	game_next_map(game);
+	update_bomb(game->bomb,game->maps[0],game->player, &(game->monster));
 	game_banner_display(game);
 	map_display(game_get_current_map(game));
 	player_display(game->player);
+	game_update_monsters(game->monster, game,game_get_current_map(game));
+
 
 	window_refresh();
 }
@@ -159,6 +183,15 @@ static short input_keyboard(struct game* game) {
 	return 0;
 }
 
+void game_update_monsters(struct monster* monster, struct game* game,struct map* map){
+	assert(game);
+	while(monster != NULL){
+		monster_move(monster, game_get_current_map(game), game->player);
+		window_display_image(sprite_get_monster(monster_get_direction(monster)),monster_get_x(monster)*40,monster_get_y(monster)*40);
+		monster = monster_get_next_monster(monster);
+	}
+	game->monster = kill_monster(game->monster,game_get_current_map(game));
+}
 int game_update(struct game* game) {
 	if (input_keyboard(game))
 		return 1; // exit game

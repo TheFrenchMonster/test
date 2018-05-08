@@ -53,6 +53,15 @@
 #define PLAYER_RIGHT    "sprite/player_right.png"
 #define PLAYER_DOWN     "sprite/player_down.png"
 
+// Sprites of Monsters
+#define MONSTER_LEFT     "sprite/monster_left.png"
+#define MONSTER_UP       "sprite/monster_up.png"
+#define MONSTER_RIGHT    "sprite/monster_right.png"
+#define MONSTER_DOWN     "sprite/monster_down.png"
+
+// Sprites of Players
+#define BOMBERWOMAN    "sprite/bomberwoman.png"
+
 // banner
 SDL_Surface* numbers[10];
 SDL_Surface* banner_life;
@@ -73,6 +82,7 @@ SDL_Surface* bomb2;
 SDL_Surface* bomb3;
 SDL_Surface* bomb4;
 SDL_Surface* fire;
+SDL_Surface* princess;
 
 // bonus
 #define NB_BONUS 4
@@ -80,6 +90,9 @@ SDL_Surface* bonus[NB_BONUS + 1];
 
 // player
 SDL_Surface* player_img[4];
+
+// player
+SDL_Surface* monster_img[4];
 
 static void banner_load() {
 	// numbers imgs
@@ -127,6 +140,7 @@ static void map_load() {
 	bomb3 = load_image(BOMB_TTL3);
 	bomb4 = load_image(BOMB_TTL4);
 	fire = load_image(FIRE);
+	princess = load_image(BOMBERWOMAN);
 }
 
 static void map_unload() {
@@ -160,6 +174,13 @@ static void player_load() {
 	player_img[SOUTH] = load_image(PLAYER_DOWN);
 }
 
+static void monster_load() {
+	monster_img[WEST] = load_image(MONSTER_LEFT);
+	monster_img[EAST] = load_image(MONSTER_RIGHT);
+	monster_img[NORTH] = load_image(MONSTER_UP);
+	monster_img[SOUTH] = load_image(MONSTER_DOWN);
+}
+
 static void player_unload() {
 	for (int i = 0; i < 4; i++)
 		SDL_FreeSurface(player_img[i]);
@@ -170,6 +191,7 @@ void sprite_load() {
 	bonus_load();
 	banner_load();
 	player_load();
+	monster_load();
 }
 
 void sprite_free() {
@@ -266,4 +288,13 @@ SDL_Surface* sprite_get_door_opened() {
 SDL_Surface* sprite_get_door_closed() {
 	assert(door_closed);
 	return door_closed;
+}
+SDL_Surface* sprite_get_monster(enum direction direction) {
+	assert(monster_img[direction]);
+	return monster_img[direction];
+}
+
+SDL_Surface* sprite_get_princess() {
+	assert(princess);
+	return princess;
 }
