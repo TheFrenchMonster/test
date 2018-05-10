@@ -63,7 +63,7 @@ struct monster* spawn_new_monster(struct monster* monster, struct map* map, int 
 	new_monster->y=y;
 	new_monster->current_direction= EAST;
 	new_monster->last_move=SDL_GetTicks();
-	new_monster->speed=1+.5*map_get_level(map);
+	new_monster->speed=1+.2*map_get_level(map);
 	new_monster->next_monster=NULL;
 	new_monster->hp=1;
 	new_monster->birth = SDL_GetTicks();
@@ -92,6 +92,16 @@ struct monster* monster_spawn_map(struct monster* monster, struct map* map){
 		}
 	}
 	return monster;
+}
+
+void set_new_monster_time(struct monster* monster, int pause){
+	assert(monster);
+	int currentTime = SDL_GetTicks();
+	struct monster* current_monster = monster;
+	while(current_monster != NULL){
+		current_monster->last_move = current_monster->last_move + currentTime - pause;
+		current_monster = current_monster->next_monster;
+	}
 }
 
 struct monster* kill_monster(struct monster* monster,struct map* map){
@@ -176,7 +186,7 @@ int monster_move(struct monster* monster, struct map* map, struct player* player
 	int y = monster->y;
 	int move=0;
 	int currentTime = SDL_GetTicks();
-	int timer = currentTime - (monster->last_move)*(monster->speed);
+	int timer = currentTime - (monster->last_move)*(1/(monster->speed));
 	if(timer > 2500){
 		monster ->current_direction = random_number(0,4);
 		switch(monster->current_direction){

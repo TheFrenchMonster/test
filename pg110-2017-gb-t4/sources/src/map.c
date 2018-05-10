@@ -122,7 +122,7 @@ enum bonus_type map_get_bonus_type(struct map* map, int x, int y)
 	return map->grid[CELL(x,y)] & 0x0f;
 }
 
-enum cell_type map_get_cell_sub_type(struct map* map, int x, int y)
+int map_get_cell_sub_type(struct map* map, int x, int y)
 {
 	assert(map && map_is_inside(map, x, y));
 	return map->grid[CELL(x,y)] & 0x0f;

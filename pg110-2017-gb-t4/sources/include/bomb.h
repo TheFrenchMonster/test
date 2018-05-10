@@ -17,3 +17,4 @@ int bomb_get_birth(struct bomb* bomb);
 void update_bomb(struct bomb* bomb, struct map* map, struct player* player,struct monster** monster);
 void stop_fire(struct map* map, int x, int y, struct player* player, int bomb_range);
 void start_fire(struct map* map, int x, int y, struct player* player, int bomb_range,struct bomb* bomb,struct monster** monster);
+void set_bomb_time(struct bomb* bomb, int pause);

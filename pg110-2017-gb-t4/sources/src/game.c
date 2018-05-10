@@ -39,7 +39,7 @@ game_new(void) {
 	game->current_level = 0;
 	game->bomb = NULL;
 	game->monster = NULL;
-	game->player = player_init(5,1,2,2);
+	game->player = player_init(2,1,2,1);
 	// Set default location of the player
 	player_set_position(game->player, 1, 0);
 	game->monster = monster_spawn_map(game->monster, game->maps[0]);
@@ -127,8 +127,8 @@ void game_banner_display(struct game* game) {
 
 void game_display(struct game* game) {
 	assert(game);
-	printf("%d",map_get_level(game_get_current_map(game)));
 	window_clear();
+	printf("%d",map_get_level(game_get_current_map(game)));
 	game_next_map(game);
 	update_bomb(game->bomb,game->maps[0],game->player, &(game->monster));
 	game_banner_display(game);
@@ -145,7 +145,9 @@ static short input_keyboard(struct game* game) {
 	struct player* player = game_get_player(game);
 	struct map* map = game_get_current_map(game);
 	struct bomb* bomb = game_get_bomb(game);
+	struct monster* monster = game_get_monster(game);
 
+	int pause =0;
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
 		case SDL_QUIT:
@@ -173,6 +175,15 @@ static short input_keyboard(struct game* game) {
 			case SDLK_SPACE:
 				game->bomb=set_bomb(player,map,bomb);
 				break;
+			case SDLK_p:
+				window_refresh();
+				int pause_time = SDL_GetTicks();
+				while(!pause){
+					pause = pause_game();
+				}
+				set_new_monster_time(monster,pause_time);
+				set_bomb_time(bomb,pause_time);
+				break;
 			default:
 				break;
 			}
@@ -183,6 +194,27 @@ static short input_keyboard(struct game* game) {
 	return 0;
 }
 
+int pause_game() {
+	SDL_Event event;
+	while(SDL_PollEvent(&event)) {
+		switch (event.type) {
+		case SDL_QUIT:
+			return 1;
+
+		case SDL_KEYDOWN:
+			switch(event.key.keysym.sym){
+			case SDLK_p:
+				return 1;
+				break;
+			default:
+				break;
+			}
+			break;
+		}
+
+	}
+	return 0;
+}
 void game_update_monsters(struct monster* monster, struct game* game,struct map* map){
 	assert(game);
 	while(monster != NULL){

@@ -100,16 +100,22 @@ void start_fire(struct map* map, int x, int y, struct player* player, int bomb_r
 					decrease_hp_monster(monster, x+i,y);
 				}
 
+
 				else 	{
 					map_set_cell_type(map, x+i, y, CELL_FIRE);
 				}
 			}
 
 			else if (map_get_cell_type(map, x+i , y) == CELL_BOX){
-				map_set_cell_type(map, x+i, y, CELL_BONUS | map_get_cell_sub_type(map,x+i,y));
-				break;
+				if (map_get_cell_sub_type(map,x+i,y) == 0) {
+					map_set_cell_type(map, x+i, y, CELL_EMPTY);
+					break;
+				}
+				else {
+					map_set_cell_type(map, x+i, y, CELL_BONUS | map_get_cell_sub_type(map,x+i,y));
+					break;
+				}
 			}
-
 			else {
 				break;
 			}
@@ -139,16 +145,21 @@ void start_fire(struct map* map, int x, int y, struct player* player, int bomb_r
 				else if (map_get_cell_type(map, x-i , y) == CELL_MONSTER){
 					decrease_hp_monster(monster, x-i,y);
 				}
+
 				else {
 					map_set_cell_type(map, x-i, y, CELL_FIRE);
 				}
 			}
-
 			else if (map_get_cell_type(map, x-i , y) == CELL_BOX){
-				map_set_cell_type(map, x-i, y, CELL_BONUS | map_get_cell_sub_type(map,x-i,y));
-				break;
+				if (map_get_cell_sub_type(map,x-i,y) == 0) {
+					map_set_cell_type(map, x-i, y, CELL_EMPTY);
+					break;
+				}
+				else {
+					map_set_cell_type(map, x-i, y, CELL_BONUS | map_get_cell_sub_type(map,x-i,y));
+					break;
+				}
 			}
-
 			else 	{
 				break;
 			}
@@ -173,6 +184,7 @@ void start_fire(struct map* map, int x, int y, struct player* player, int bomb_r
 				else if (map_get_cell_type(map, x , y+i) == CELL_MONSTER){
 					decrease_hp_monster(monster, x,y+i);
 				}
+
 				else {
 					map_set_cell_type(map, x, y+i, CELL_FIRE);
 				}
@@ -180,10 +192,17 @@ void start_fire(struct map* map, int x, int y, struct player* player, int bomb_r
 			}
 
 			else if (map_get_cell_type(map, x , y+i) == CELL_BOX){
-				map_set_cell_type(map, x, y+i, CELL_BONUS | map_get_cell_sub_type(map,x,y+i));
-				break;
+				if (map_get_cell_sub_type(map,x,y+i) == 0) {
+					map_set_cell_type(map, x, y+i, CELL_EMPTY);
+					printf("%d\n",0);
+					break;
+				}
+				else {
+					map_set_cell_type(map, x, y+i, CELL_BONUS | map_get_cell_sub_type(map,x,y+i));
+					printf("%d\n",1);
+					break;
+				}
 			}
-
 			else {
 				break;
 			}
@@ -209,17 +228,25 @@ void start_fire(struct map* map, int x, int y, struct player* player, int bomb_r
 				else if (map_get_cell_type(map, x , y-i) == CELL_MONSTER){
 					decrease_hp_monster(monster, x,y-i);
 				}
+
 				else {
 					map_set_cell_type(map, x, y-i, CELL_FIRE);
 				}
 
 			}
-
 			else if (map_get_cell_type(map, x , y-i) == CELL_BOX){
-				map_set_cell_type(map, x, y-i, CELL_BONUS | map_get_cell_sub_type(map,x,y-i));
-				break;
-
+				if (map_get_cell_sub_type(map,x,y-i) == 0) {
+					map_set_cell_type(map, x, y-i, CELL_EMPTY);
+					printf("%d\n",0);
+					break;
+				}
+				else {
+					map_set_cell_type(map, x, y-i, CELL_BONUS | map_get_cell_sub_type(map,x,y-i));
+					printf("%d\n",1);
+					break;
+				}
 			}
+
 
 			else {
 				break;
@@ -234,6 +261,10 @@ void stop_fire(struct map* map, int x, int y, struct player* player, int bomb_ra
 
 		if (map_get_cell_type(map,x+i,y) == CELL_FIRE) {
 			map_set_cell_type(map,x+i,y,CELL_EMPTY);
+			if(i==0){
+				player_inc_nb_bomb(player);
+			}
+
 			}
 
 		if (map_get_cell_type(map,x-i,y) == CELL_FIRE) {
@@ -247,6 +278,7 @@ void stop_fire(struct map* map, int x, int y, struct player* player, int bomb_ra
 		if (map_get_cell_type(map,x,y-i) == CELL_FIRE) {
 			map_set_cell_type(map,x,y-i,CELL_EMPTY);
 			}
+
 	}
 }
 
@@ -273,28 +305,93 @@ void destroy_bonus(struct map* map, int x, int y,int bomb_range){
 		}
 }
 
-void check_fire(struct bomb* bomb, struct map* map, int x, int y, int bomb_range){
+void set_bomb_time(struct bomb* bomb, int pause){
+	int currentTime= SDL_GetTicks();
+	struct bomb* current_bomb = bomb;
+	while (current_bomb !=NULL){
+		current_bomb->birth = current_bomb->birth + currentTime - pause;
+		current_bomb = current_bomb->next;
+	}
+}
+
+void check_fire(struct bomb* bomb, struct map* map, int x, int y, int bomb_range,struct monster** monster){
 	for(int i=0;i<=bomb_range;i++){
 		if (map_get_cell_type(map,x+i,y) == CELL_BOX){
-			bomb->around[0]=i;
+			bomb->around[0]=i-1;
+			if (map_get_cell_sub_type(map,x+i,y) == 0) {
+				map_set_cell_type(map, x+i, y, CELL_EMPTY);
+				printf("%d\n",0);
+				break;
+			}
+			else if (map_get_cell_sub_type(map,x+i,y) == 5){
+				spawn_new_monster(*monster,map,x+i,y);
+				map_set_cell_type(map, x+i, y, CELL_EMPTY);
+			}
+			else {
+				map_set_cell_type(map, x+i, y, CELL_BONUS | map_get_cell_sub_type(map,x+i,y));
+				printf("%d\n",1);
+				break;
+			}
 			break;
 		}
 	}
 	for(int i=0;i<=bomb_range;i++){
 		if (map_get_cell_type(map,x-i,y) == CELL_BOX){
-			bomb->around[1]=i;
+			bomb->around[1]=i-1;
+			if (map_get_cell_sub_type(map,x-i,y) == 0) {
+				map_set_cell_type(map, x-i, y, CELL_EMPTY);
+				printf("%d\n",0);
+				break;
+			}
+			else if (map_get_cell_sub_type(map,x-i,y) == 5){
+				spawn_new_monster(*monster,map,x-i,y);
+				map_set_cell_type(map, x-i, y, CELL_EMPTY);
+			}
+			else {
+				map_set_cell_type(map, x-i, y, CELL_BONUS | map_get_cell_sub_type(map,x-i,y));
+				printf("%d\n",1);
+				break;
+			}
 			break;
 			}
 		}
 	for(int i=0;i<=bomb_range;i++){
 		if (map_get_cell_type(map,x,y+i) == CELL_BOX){
-			bomb->around[2]=i;
+			bomb->around[2]=i-1;
+			if (map_get_cell_sub_type(map,x,y+i) == 0) {
+				map_set_cell_type(map, x, y+i, CELL_EMPTY);
+				printf("%d\n",0);
+				break;
+			}
+			else if (map_get_cell_sub_type(map,x,y+i) == 5){
+					spawn_new_monster(*monster,map,x,y+i);
+					map_set_cell_type(map, x, y+i, CELL_EMPTY);
+			}
+			else {
+				map_set_cell_type(map, x, y+i, CELL_BONUS | map_get_cell_sub_type(map,x,y+i));
+				printf("%d\n",1);
+				break;
+							}
 			break;
 		}
 	}
 	for(int i=0;i<=bomb_range;i++){
 		if (map_get_cell_type(map,x,y-i) == CELL_BOX){
-			bomb->around[3]=i;
+			bomb->around[3]=i-1;
+			if (map_get_cell_sub_type(map,x,y-i) == 0) {
+				map_set_cell_type(map, x, y-i, CELL_EMPTY);
+				printf("%d\n",0);
+				break;
+			}
+			else if (map_get_cell_sub_type(map,x,y-i) == 5){
+				spawn_new_monster(*monster,map,x,y-i);
+				map_set_cell_type(map, x, y-i, CELL_EMPTY);
+			}
+			else {
+				map_set_cell_type(map, x, y-i, CELL_BONUS | map_get_cell_sub_type(map,x,y-i));
+				printf("%d\n",1);
+				break;
+			}
 			break;
 		}
 	}
@@ -323,7 +420,7 @@ void update_bomb(struct bomb* bomb, struct map* map, struct player* player,struc
 				map_set_cell_type(map, x, y, 115);
 				if (timer>3950){
 					destroy_bonus(map,x,y,bomb_range);
-					check_fire(currentbomb,map,x,y,bomb_range);
+					check_fire(currentbomb,map,x,y,bomb_range,monster);
 				}
 			}
 			else if (4000<timer && timer<5000) {
@@ -337,6 +434,7 @@ void update_bomb(struct bomb* bomb, struct map* map, struct player* player,struc
 					free(tmpbomb);
 					}
 				}
+
 			currentbomb = currentbomb->next;
 			}
 		}

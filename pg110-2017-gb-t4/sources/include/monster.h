@@ -23,3 +23,5 @@ int monster_move(struct monster* monster, struct map* map, struct player* player
 
 struct monster* kill_monster(struct monster* monster,struct map* map);
 void decrease_hp_monster(struct monster** monster, int x,int y);
+
+void set_new_monster_time(struct monster* monster, int pause);

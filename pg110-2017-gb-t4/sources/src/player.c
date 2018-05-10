@@ -213,6 +213,7 @@ static int player_move_aux(struct player* player, struct map* map, int x, int y)
 				map_inc_level(map, currentlvl);
 			}
 			player->next_level=1;
+			player_set_position(player,1,0);
 			return 1;
 		}
 		else if (door_is_open(x,y,map) == 0 && (player->key >= 1)) {
@@ -230,6 +231,7 @@ static int player_move_aux(struct player* player, struct map* map, int x, int y)
 			}
 			player->key--;
 			player->next_level=1;
+			player_set_position(player,1,0);
 			return 1;
 		}
 
